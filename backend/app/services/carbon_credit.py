@@ -1,28 +1,24 @@
 import ee
-import os
 from datetime import datetime, timedelta
 from functools import lru_cache
-from dotenv import load_dotenv
 
-load_dotenv()
+from app.core.config import settings
 
 MANGROVE_NDVI_THRESHOLD = 0.3
 
 
 @lru_cache(maxsize=1)
 def _get_ee_collection():
-    ee.Initialize(project=os.getenv("PROJECT_ID"))
+    ee.Initialize(project=settings.project_id)
     return ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
 
 
-# ---------------- CLOUD MASK ----------------
 def mask_clouds(image):
-    scl = image.select('SCL')
+    scl = image.select("SCL")
     mask = scl.eq(4).Or(scl.eq(5))
     return image.updateMask(mask)
 
 
-# ---------------- NDVI + SENTINEL ----------------
 def extract_ndvi(coords):
     polygon = ee.Geometry.Polygon([coords])
     collection = _get_ee_collection()
@@ -33,8 +29,7 @@ def extract_ndvi(coords):
     start_date_12m = (now - timedelta(days=365)).strftime("%Y-%m-%d")
 
     filtered = (
-        collection
-        .filterBounds(polygon)
+        collection.filterBounds(polygon)
         .filterDate(start_date_6m, end_date)
         .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", 10))
         .map(mask_clouds)
@@ -42,8 +37,7 @@ def extract_ndvi(coords):
 
     if filtered.size().getInfo() == 0:
         filtered = (
-            collection
-            .filterBounds(polygon)
+            collection.filterBounds(polygon)
             .filterDate(start_date_12m, end_date)
             .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", 10))
             .map(mask_clouds)
@@ -53,17 +47,13 @@ def extract_ndvi(coords):
         raise ValueError("No Sentinel data available")
 
     image = filtered.median().clip(polygon)
-
-    ndvi = image.normalizedDifference(['B8', 'B4']).rename('NDVI')
+    ndvi = image.normalizedDifference(["B8", "B4"]).rename("NDVI")
 
     stats = ndvi.reduceRegion(
-        reducer=ee.Reducer.mean(),
-        geometry=polygon,
-        scale=10,
-        maxPixels=1e9
+        reducer=ee.Reducer.mean(), geometry=polygon, scale=10, maxPixels=1e9
     )
 
-    mean_ndvi = stats.get('NDVI').getInfo()
+    mean_ndvi = stats.get("NDVI").getInfo()
 
     if mean_ndvi is None:
         raise ValueError("NDVI failed")
@@ -77,18 +67,15 @@ def extract_ndvi(coords):
     return mean_ndvi, polygon
 
 
-
 def calculate_area_hectares(polygon):
     area_m2 = polygon.area().getInfo()
     return area_m2 / 10000
 
 
-# ---------------- BIOMASS ----------------
 def calculate_agb(ndvi, a=776.2, b=3.97):
-    return a * (ndvi ** b)
+    return a * (ndvi**b)
 
 
-# ---------------- CARBON ----------------
 def calculate_tco2e(agb, r2sr=0.49, carbon_fraction=0.45):
     bgb = agb * r2sr
     total_biomass = agb + bgb
@@ -96,21 +83,15 @@ def calculate_tco2e(agb, r2sr=0.49, carbon_fraction=0.45):
     return carbon_stock * 3.67
 
 
-# ---------------- FINAL CREDITS ----------------
 def calculate_credits(tco2e, area, buffer=0.15):
     return tco2e * area * (1 - buffer)
 
 
-# ---------------- MAIN PIPELINE ----------------
 def run_pipeline(coords):
     ndvi, polygon = extract_ndvi(coords)
-
     area = calculate_area_hectares(polygon)
-
     agb = calculate_agb(ndvi)
-
     tco2e = calculate_tco2e(agb)
-
     total_credits = calculate_credits(tco2e, area)
 
     return {
@@ -118,5 +99,5 @@ def run_pipeline(coords):
         "area_hectares": area,
         "agb": agb,
         "tco2e_per_ha": tco2e,
-        "total_credits": total_credits
+        "total_credits": total_credits,
     }

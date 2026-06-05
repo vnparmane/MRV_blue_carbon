@@ -9,4 +9,6 @@ sqlalchemy
 web3>=6.0.0
 pydantic>=2.0.0
 alembic
-requests 
+requests
+pydantic-settings
+pytest

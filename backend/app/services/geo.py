@@ -28,27 +28,21 @@ def convert_to_degrees(value):
         s = value[2][0] / value[2][1]
     except TypeError:
         d, m, s = value
-
     return d + (m / 60.0) + (s / 3600.0)
 
 
 def extract_gps(exif_data):
     gps_info = exif_data.get("GPSInfo")
-
     if not gps_info:
         return None, None
-
     try:
         lat = convert_to_degrees(gps_info["GPSLatitude"])
         lon = convert_to_degrees(gps_info["GPSLongitude"])
-
         if gps_info.get("GPSLatitudeRef") != "N":
             lat = -lat
         if gps_info.get("GPSLongitudeRef") != "E":
             lon = -lon
-
         return lat, lon
-
     except Exception:
         return None, None
 
@@ -61,48 +55,41 @@ def extract_image_metadata_from_bytes(file_bytes: bytes):
     try:
         image = Image.open(BytesIO(file_bytes))
         exif_data = get_exif_data(image)
-
         lat, lon = extract_gps(exif_data)
         timestamp = extract_timestamp(exif_data)
-
         return {
             "latitude": lat,
             "longitude": lon,
             "timestamp": timestamp,
-            "has_gps": lat is not None and lon is not None
+            "has_gps": lat is not None and lon is not None,
         }
-
     except Exception as e:
         return {
             "latitude": None,
             "longitude": None,
             "timestamp": None,
             "has_gps": False,
-            "error": str(e)
+            "error": str(e),
         }
 
 
 def extract_image_metadata(file_path: str):
-    """Extract metadata from image file at given path."""
     try:
         with Image.open(file_path) as image:
             exif_data = get_exif_data(image)
-
             lat, lon = extract_gps(exif_data)
             timestamp = extract_timestamp(exif_data)
-
             return {
                 "latitude": lat,
                 "longitude": lon,
                 "timestamp": timestamp,
-                "has_gps": lat is not None and lon is not None
+                "has_gps": lat is not None and lon is not None,
             }
-
     except Exception as e:
         return {
             "latitude": None,
             "longitude": None,
             "timestamp": None,
             "has_gps": False,
-            "error": str(e)
+            "error": str(e),
         }

@@ -59,12 +59,12 @@ Edit `.env` with your credentials:
 | `BLOCKCHAIN_PRIVATE_KEY` | Wallet private key (hex, with `0x` prefix) |
 | `PROJECT_ID` | Google Earth Engine project ID |
 | `PINATA_JWT` | Pinata API JWT |
-| `DATABASE_URL` | SQLite path (default: `sqlite:///./data.db`) |
+| `DATABASE_URL` | SQLite path (default: `sqlite:///./data/data.db`) |
 
 ### 3. Start the backend
 
 ```bash
-uvicorn main:app --reload
+uvicorn app.main:app --reload
 ```
 
 The API runs at `http://localhost:8000`.
@@ -91,17 +91,23 @@ The app opens at `http://localhost:5173`.
 ```
 mrv_self/
 ├── backend/
-│   ├── main.py              # FastAPI app entrypoint
-│   ├── models.py            # SQLAlchemy models
-│   ├── database.py          # DB engine & session
-│   ├── crud.py              # CRUD operations
-│   ├── blockchain_func.py   # Polygon smart-contract interaction
-│   ├── geartheng.py         # Google Earth Engine logic
-│   ├── geoExtracter.py      # Geo-data extraction helpers
-│   ├── requirements.txt
-│   └── .env.example
+│   ├── app/
+│   │   ├── main.py              # FastAPI app entrypoint
+│   │   ├── core/config.py       # Pydantic Settings (env-driven)
+│   │   ├── db/                  # DB engine, session, init
+│   │   ├── models/              # SQLAlchemy ORM models
+│   │   ├── schemas/             # Pydantic request/response DTOs
+│   │   ├── crud/                # CRUD operations
+│   │   ├── services/            # Business logic (GEE, blockchain, IPFS, geo)
+│   │   ├── api/v1/endpoints/    # Route handlers
+│   │   └── utils/               # Helper functions
+│   ├── alembic/                 # DB migrations
+│   ├── data/                    # SQLite database (gitignored)
+│   ├── tests/
+│   ├── .env.example
+│   └── requirements.txt
 ├── frontend/
-│   ├── src/                 # React app source
+│   ├── src/                     # React app source
 │   ├── public/
 │   ├── index.html
 │   ├── package.json
