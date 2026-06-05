@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+data.db
+*.sqlite
+*.sqlite3
+
+# Node / Vite
+node_modules/
+dist/
+build/
+*.local
+.vite/
+
+# Test artifacts
+test.jpg
+test_upload.png
+
+# Internal / scratch
+digest.txt
+mrv_implementation_plan.md
+AGENTS.md
+
+# Agent / IDE config
+.opencode/
+.claude/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db

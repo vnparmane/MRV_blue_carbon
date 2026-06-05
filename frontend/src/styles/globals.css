@@ -1,0 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 16 34 34;
+    --surface: 16 34 34;
+    --surface-container-lowest: 8 17 17;
+    --surface-container-low: 16 34 34;
+    --surface-container: 26 46 46;
+    --surface-container-high: 36 58 58;
+    --surface-container-highest: 46 70 70;
+    --primary: 19 236 236;
+    --on-primary: 0 32 32;
+    --on-surface: 241 251 251;
+    --on-surface-variant: 208 251 251;
+    --outline-variant: 59 74 73;
+    --secondary: 76 154 154;
+    --error: 186 26 26;
+    --tertiary-container: 255 207 67;
+  }
+
+  body {
+    @apply bg-background text-on-surface font-body antialiased overflow-x-hidden;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface-container-high rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-surface-container/60 backdrop-blur-md;
+  }
+
+  .data-mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+}
+
+@layer utilities {
+  .bg-background {
+    background-color: rgb(16 34 34);
+  }
+
+  .bg-surface-container-lowest {
+    background-color: rgb(8 17 17);
+  }
+
+  .bg-surface-container-low {
+    background-color: rgb(16 34 34);
+  }
+
+  .bg-surface-container {
+    background-color: rgb(26 46 46);
+  }
+
+  .bg-surface-container-high {
+    background-color: rgb(36 58 58);
+  }
+
+  .bg-surface-container-highest {
+    background-color: rgb(46 70 70);
+  }
+
+  .text-on-surface {
+    color: rgb(241 251 251);
+  }
+
+  .text-on-surface-variant {
+    color: rgb(208 251 251);
+  }
+
+  .border-outline-variant {
+    border-color: rgb(59 74 73);
+  }
+
+  .bg-primary-container {
+    background-color: rgb(0 79 79);
+  }
+
+  .text-tertiary-container {
+    color: rgb(255 207 67);
+  }
+
+  .bg-tertiary-container {
+    background-color: rgb(255 207 67);
+  }
+}
